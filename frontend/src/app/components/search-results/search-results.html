@@ -1,0 +1,19 @@
+<div class="results-container">
+  <ag-grid-angular class="ag-theme-quartz" style="width: 100%; height: 500px;" [rowData]="rowData"
+    [columnDefs]="colDefs" [defaultColDef]="defaultColDef" [pagination]="false">
+  </ag-grid-angular>
+
+  <div class="pagination-controls">
+    <span class="page-info">
+      Page {{ currentPage + 1 }} | Total Filtered Matches (Approx): {{ totalCount }}
+    </span>
+    <div class="buttons">
+      <button (click)="onFirst()" [disabled]="currentPage === 0" class="btn-secondary">First</button>
+      <button (click)="onPrevious()" [disabled]="currentPage === 0" class="btn-secondary">Previous</button>
+      <button (click)="onNext()" [disabled]="(currentPage + 1) * pageSize >= totalCount"
+        class="btn-primary">Next</button>
+      <button (click)="onLast()" [disabled]="(currentPage + 1) * pageSize >= totalCount"
+        class="btn-primary">Last</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+**/node_modules/
+**/target/
+**/.mvn/
+**/dist/
+**/*.log
+**/.vscode/
+**/.idea/
+**/*.class
+**/.DS_Store
+**/.angular/
+*.p12
+*.jks
