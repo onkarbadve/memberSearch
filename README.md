@@ -90,3 +90,27 @@ The application features an intelligent Natural Language generic parser.
 
 ### 💡 Pro Tip
 Capitalization matters for names (e.g., "**J**ohn"), but keywords are case-insensitive.
+
+## ☁️ Deployment Guide (Showcase Ready)
+This app is configured for easy deployment on **Render** (Backend) and **Vercel** (Frontend).
+
+### 1. Backend (Render.com)
+1.  Push your code to GitHub.
+2.  Create a **New Web Service** on Render connected to your repo.
+3.  **Root Directory**: `backend`
+4.  **Runtime**: `Docker`
+5.  **Environment Variables**:
+    *   `SPRING_PROFILES_ACTIVE` = `prod`
+6.  Deploy! Copy your new URL (e.g., `https://member-search.onrender.com`).
+
+### 2. Frontend (Vercel)
+1.  Import your GitHub repo to Vercel.
+2.  **Root Directory**: `frontend`
+3.  **Framework Preset**: Angular
+4.  **Important**: You must update the API URL.
+    *   Go to `src/environments/environment.prod.ts` in your code.
+    *   Update `apiUrl` with your **Render Backend URL**.
+    *   Commit and Push.
+5.  Vercel will auto-deploy.
+
+**Result**: A live, public link to share with your team! 🚀

@@ -31,11 +31,13 @@ export interface SearchResponse {
   size: number;
 }
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class MemberSearchService {
-  private apiUrl = 'https://localhost:8443/api/members/search';
+  private apiUrl = `${environment.apiUrl}/search`; // Base API + /search endpoint
 
   constructor(private http: HttpClient) { }
 
