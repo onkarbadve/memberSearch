@@ -107,10 +107,13 @@ This app is configured for easy deployment on **Render** (Backend) and **Vercel*
 1.  Import your GitHub repo to Vercel.
 2.  **Root Directory**: `frontend`
 3.  **Framework Preset**: Angular
-4.  **Important**: You must update the API URL.
+4.  **Build Output Directory**: `dist/frontend/browser` (Important!)
+5.  **Important**: You must update the API URL.
     *   Go to `src/environments/environment.prod.ts` in your code.
     *   Update `apiUrl` with your **Render Backend URL**.
     *   Commit and Push.
-5.  Vercel will auto-deploy.
+6.  Vercel will auto-deploy.
+
+**Note**: I have added a `vercel.json` to handle routing (fixing 404 errors on refresh).
 
 **Result**: A live, public link to share with your team! 🚀
