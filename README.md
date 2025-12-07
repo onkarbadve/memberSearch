@@ -9,6 +9,10 @@ A full-stack, enterprise-grade application for searching and managing member dat
 - **Build Tools**: Maven, NPM/Angular CLI
 
 ## ✨ Key Features
+- **✨ AI Natural Language Search**: 
+  - **Conversational Queries**: "Show me all IT members in India".
+  - **Intelligent Parsing**: Automatically detects Names, Countries, and Business Units.
+  - **No API Keys**: Runs effectively locally without external dependencies.
 - **High Performance**: Optimized for large datasets (1000+ records) with database-level filtering.
 - **Secure by Default**: Full HTTPS implementation for both API and Client.
 - **Server-Side Pagination**: Efficiently pages through thousands of records without browser lag.
