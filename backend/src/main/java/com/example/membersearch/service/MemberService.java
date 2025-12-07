@@ -25,4 +25,21 @@ public class MemberService {
 
         return memberRepository.findAll(spec, pageable);
     }
+
+    public Member updateMember(Long id, Member memberDetails) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Member not found with id " + id));
+
+        member.setFirstName(memberDetails.getFirstName());
+        member.setLastName(memberDetails.getLastName());
+        member.setMiddleName(memberDetails.getMiddleName());
+        member.setBusinessUnit(memberDetails.getBusinessUnit());
+        member.setCountry(memberDetails.getCountry());
+        member.setSourceMemberId(memberDetails.getSourceMemberId());
+        // Entitlement is usually managed separately, but for now we allow updating if
+        // needed
+        // member.setEntitled(memberDetails.isEntitled());
+
+        return memberRepository.save(member);
+    }
 }

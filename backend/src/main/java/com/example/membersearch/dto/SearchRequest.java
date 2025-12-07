@@ -7,10 +7,10 @@ public class SearchRequest {
     private String firstName;
     private String middleName;
     private String lastName;
-    private String businessUnit;
+    private java.util.List<String> businessUnits;
     private String country;
     private String sourceMemberId;
-    
+
     private int page = 0;
     private int size = 10;
 }

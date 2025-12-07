@@ -149,3 +149,28 @@ button {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* Edit Button Styles */
+.actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn-edit {
+    background-color: #f3f4f6;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.action-btn-edit:hover {
+    background-color: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}

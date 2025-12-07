@@ -6,7 +6,7 @@ export interface SearchRequest {
   firstName?: string;
   middleName?: string;
   lastName?: string;
-  businessUnit?: string;
+  businessUnits?: string[];
   country?: string;
   sourceMemberId?: string;
   page: number;
@@ -41,5 +41,13 @@ export class MemberSearchService {
 
   search(request: SearchRequest): Observable<SearchResponse> {
     return this.http.post<SearchResponse>(this.apiUrl, request);
+  }
+
+  updateMember(id: number, member: Member): Observable<Member> {
+    // The backend endpoint is /api/members/{id}
+    // We need to construct the URL correctly.
+    // The apiUrl is .../search, so we need to strip 'search' and append id.
+    const baseUrl = this.apiUrl.replace('/search', '');
+    return this.http.put<Member>(`${baseUrl}/${id}`, member);
   }
 }

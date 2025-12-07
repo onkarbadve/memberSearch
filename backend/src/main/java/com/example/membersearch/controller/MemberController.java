@@ -1,3 +1,4 @@
+
 package com.example.membersearch.controller;
 
 import com.example.membersearch.dto.SearchRequest;
@@ -17,10 +18,16 @@ public class MemberController {
     private MemberService memberService;
 
     @PostMapping("/search")
-    public Page<Member> search(@RequestBody SearchRequest request) {
-        System.out.println("Received search request: " + request);
+    public Page<Member> searchMembers(@RequestBody SearchRequest request) {
+        // System.out.println("Received search request: " + request);
         Page<Member> result = memberService.searchMembers(request);
-        System.out.println("Search completed. Found: " + result.getTotalElements());
+        // System.out.println("Search completed. Found " + result.getTotalElements() + "
+        // elements.");
         return result;
+    }
+
+    @PutMapping("/{id}")
+    public Member updateMember(@PathVariable Long id, @RequestBody Member member) {
+        return memberService.updateMember(id, member);
     }
 }

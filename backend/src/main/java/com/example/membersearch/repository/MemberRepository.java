@@ -32,8 +32,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecif
                 predicates
                         .add(cb.like(cb.lower(root.get("lastName")), "%" + request.getLastName().toLowerCase() + "%"));
             }
-            if (StringUtils.hasText(request.getBusinessUnit())) {
-                predicates.add(cb.equal(root.get("businessUnit"), request.getBusinessUnit()));
+            if (request.getBusinessUnits() != null && !request.getBusinessUnits().isEmpty()) {
+                predicates.add(root.get("businessUnit").in(request.getBusinessUnits()));
             }
             if (StringUtils.hasText(request.getCountry())) {
                 predicates.add(cb.equal(root.get("country"), request.getCountry()));

@@ -1,19 +1,24 @@
 <div class="results-container">
-  <ag-grid-angular class="ag-theme-quartz" style="width: 100%; height: 500px;" [rowData]="rowData"
-    [columnDefs]="colDefs" [defaultColDef]="defaultColDef" [pagination]="false">
-  </ag-grid-angular>
+  <div class="grid-wrapper">
+    <ag-grid-angular class="ag-theme-quartz" [rowData]="rowData" [columnDefs]="colDefs" [defaultColDef]="defaultColDef"
+      [pagination]="false" (gridReady)="onGridReady($event)" (cellClicked)="onCellClicked($event)"
+      style="width: 100%; height: 500px;">
+    </ag-grid-angular>
+  </div>
 
   <div class="pagination-controls">
+    <button (click)="onFirst()" [disabled]="currentPage === 0" class="btn-secondary">First</button>
+    <button (click)="onPrevious()" [disabled]="currentPage === 0" class="btn-secondary">Previous</button>
+
     <span class="page-info">
-      Page {{ currentPage + 1 }} | Total Filtered Matches (Approx): {{ totalCount }}
+      Page {{ currentPage + 1 }} of {{ totalPages || 1 }} (Total: {{ totalCount }})
     </span>
-    <div class="buttons">
-      <button (click)="onFirst()" [disabled]="currentPage === 0" class="btn-secondary">First</button>
-      <button (click)="onPrevious()" [disabled]="currentPage === 0" class="btn-secondary">Previous</button>
-      <button (click)="onNext()" [disabled]="(currentPage + 1) * pageSize >= totalCount"
-        class="btn-primary">Next</button>
-      <button (click)="onLast()" [disabled]="(currentPage + 1) * pageSize >= totalCount"
-        class="btn-primary">Last</button>
-    </div>
+
+    <button (click)="onNext()" [disabled]="(currentPage + 1) * pageSize >= totalCount" class="btn-primary">Next</button>
+    <button (click)="onLast()" [disabled]="(currentPage + 1) * pageSize >= totalCount" class="btn-primary">Last</button>
   </div>
+
+  <app-member-edit-dialog [isOpen]="isEditModalOpen" [member]="selectedMember" (close)="closeEditModal()"
+    (save)="onSaveMember($event)">
+  </app-member-edit-dialog>
 </div>
