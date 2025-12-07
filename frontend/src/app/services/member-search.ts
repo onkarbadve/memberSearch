@@ -50,4 +50,8 @@ export class MemberSearchService {
     const baseUrl = this.apiUrl.replace('/search', '');
     return this.http.put<Member>(`${baseUrl}/${id}`, member);
   }
+
+  aiSearch(query: string): Observable<SearchResponse> {
+    return this.http.post<SearchResponse>(`${this.apiUrl}/ai`, query);
+  }
 }

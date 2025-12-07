@@ -17,6 +17,9 @@ public class MemberController {
     @Autowired
     private MemberService memberService;
 
+    @Autowired
+    private com.example.membersearch.service.AISearchService aiSearchService;
+
     @PostMapping("/search")
     public Page<Member> searchMembers(@RequestBody SearchRequest request) {
         // System.out.println("Received search request: " + request);
@@ -24,6 +27,13 @@ public class MemberController {
         // System.out.println("Search completed. Found " + result.getTotalElements() + "
         // elements.");
         return result;
+    }
+
+    @PostMapping("/search/ai")
+    public Page<Member> aiSearch(@RequestBody String query) {
+        SearchRequest request = aiSearchService.parseQuery(query);
+        System.out.println("AI Parsed Query: " + request);
+        return memberService.searchMembers(request);
     }
 
     @PutMapping("/{id}")

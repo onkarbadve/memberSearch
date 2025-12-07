@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, ValidatorFn, AbstractControl, ValidationErrors, FormsModule } from '@angular/forms';
 import { Member, MemberSearchService, SearchRequest } from '../../services/member-search';
 import { SearchResultsComponent } from '../search-results/search-results';
 
@@ -19,20 +19,30 @@ const searchValidator: ValidatorFn = (control: AbstractControl): ValidationError
 @Component({
   selector: 'app-member-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SearchResultsComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SearchResultsComponent],
   template: `
     <div class="search-container">
-      <h2>Member Search</h2>
+      <div class="header-row">
+          <h2>Member Search</h2>
+          <div class="mode-toggle">
+              <label class="switch">
+                <input type="checkbox" (change)="toggleAiMode($event)">
+                <span class="slider round"></span>
+              </label>
+              <span class="mode-label">{{ isAiMode ? '✨ AI Mode' : 'Standard Mode' }}</span>
+          </div>
+      </div>
       
       <div *ngIf="errorMessage" class="error-banner">
         {{ errorMessage }}
       </div>
       
-      <div *ngIf="searchForm.errors?.['invalidSearch'] && searchForm.touched" class="warning-banner">
+      <div *ngIf="!isAiMode && searchForm.errors?.['invalidSearch'] && searchForm.touched" class="warning-banner">
          Validation Error: You must provide (First Name OR Last Name) AND select at least one Business Unit.
       </div>
 
-      <div class="search-card">
+      <!-- STANDARD SEARCH CARD -->
+      <div class="search-card" *ngIf="!isAiMode">
         <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
           <div class="form-grid">
             <div class="form-group">
@@ -88,6 +98,24 @@ const searchValidator: ValidatorFn = (control: AbstractControl): ValidationError
         </form>
       </div>
 
+      <!-- AI SEARCH CARD -->
+      <div class="search-card ai-card" *ngIf="isAiMode">
+          <div class="ai-card-content"> <!-- Wrapper for border effect -->
+            <div class="ai-input-group">
+                <textarea 
+                  [(ngModel)]="aiQuery" 
+                  placeholder="✨ Ask the database..."
+                  rows="3"
+                  class="ai-input"></textarea>
+                <button class="btn-ai" (click)="onAiSearch()" [disabled]="isLoading || !aiQuery.trim()">
+                    <span *ngIf="!isLoading">✨</span>
+                    {{ isLoading ? 'Thinking...' : 'Generate Search' }}
+                </button>
+            </div>
+            <p class="ai-hint">Try: <span>"Show me all Sales members in UK"</span></p>
+          </div>
+      </div>
+
       <app-search-results 
         *ngIf="hasSearched"
         [rowData]="searchResults"
@@ -95,13 +123,9 @@ const searchValidator: ValidatorFn = (control: AbstractControl): ValidationError
         [currentPage]="currentPage"
         [pageSize]="pageSize"
         (pageChange)="onPageChange($event)"
-        (refresh)="onSearch(false)"> 
+        (refresh)="onRefresh()"> 
       </app-search-results>
 
-      <div *ngIf="false">
-         Debug: Searched={{hasSearched}}, Count={{searchResults.length}}
-         First={{searchResults[0] | json}}
-      </div>
     </div>
   `,
   styleUrls: ['./member-search.css']
@@ -115,6 +139,10 @@ export class MemberSearchComponent implements OnInit {
   isLoading: boolean = false;
   hasSearched: boolean = false;
   errorMessage: string = '';
+
+  // AI Mode State
+  isAiMode = false;
+  aiQuery = '';
 
   // Dropdown Logic
   businessUnitOptions = ['IT', 'HR', 'Admin', 'Sales'];
@@ -137,13 +165,17 @@ export class MemberSearchComponent implements OnInit {
 
   ngOnInit(): void { }
 
+  toggleAiMode(event: any) {
+    this.isAiMode = event.target.checked;
+    this.hasSearched = false;
+    this.errorMessage = '';
+    this.searchResults = [];
+  }
+
   // Toggle Dropdown
   toggleBuDropdown() {
     this.showBuDropdown = !this.showBuDropdown;
   }
-
-  // Close dropdown when clicking outside (simple logic handling here or simple reset)
-  // For now, toggle is enough.
 
   isBuSelected(bu: string): boolean {
     const selected = this.searchForm.get('businessUnits')?.value as string[];
@@ -177,13 +209,35 @@ export class MemberSearchComponent implements OnInit {
       this.searchForm.markAllAsTouched();
       return;
     }
+    this.executeSearch(this.searchForm.value, resetPage);
+  }
 
+  onAiSearch() {
+    if (!this.aiQuery.trim()) return;
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.hasSearched = false;
+
+    // Reset standard form to avoid confusion if we switch back
+    this.currentPage = 0;
+
+    this.memberSearchService.aiSearch(this.aiQuery).subscribe({
+      next: (response) => {
+        this.handleResponse(response);
+      },
+      error: (err) => {
+        this.handleError(err);
+      }
+    });
+  }
+
+  private executeSearch(formValues: any, resetPage: boolean) {
     if (resetPage) {
       this.currentPage = 0;
     }
 
     this.errorMessage = '';
-    const formValues = this.searchForm.value;
     const request: SearchRequest = {
       ...formValues,
       page: this.currentPage,
@@ -193,21 +247,34 @@ export class MemberSearchComponent implements OnInit {
     console.log('Sending search request:', request);
     this.isLoading = true;
     this.memberSearchService.search(request).subscribe({
-      next: (response) => {
-        console.log('Search response received:', response);
-        this.searchResults = response.content;
-        this.totalCount = response.totalElements;
-        this.isLoading = false;
-        this.hasSearched = true;
-        this.cdr.detectChanges(); // FORCE UPDATE
-      },
-      error: (err) => {
-        console.error('Search failed', err);
-        this.isLoading = false;
-        this.errorMessage = 'Search failed: ' + (err.message || 'Unknown error');
-        this.cdr.detectChanges(); // FORCE UPDATE
-      }
+      next: (response) => this.handleResponse(response),
+      error: (err) => this.handleError(err)
     });
+  }
+
+  private handleResponse(response: any) {
+    console.log('Search response received:', response);
+    this.searchResults = response.content;
+    this.totalCount = response.totalElements;
+    this.isLoading = false;
+    this.hasSearched = true;
+    this.cdr.detectChanges();
+  }
+
+  private handleError(err: any) {
+    console.error('Search failed', err);
+    this.isLoading = false;
+    this.errorMessage = 'Search failed: ' + (err.message || 'Unknown error');
+    this.cdr.detectChanges();
+  }
+
+  onRefresh() {
+    // Re-run the last active search type
+    if (this.isAiMode) {
+      this.onAiSearch();
+    } else {
+      this.onSearch(false);
+    }
   }
 
   onReset() {
@@ -228,6 +295,15 @@ export class MemberSearchComponent implements OnInit {
 
   onPageChange(page: number) {
     this.currentPage = page;
-    this.onSearch(false);
+    // For pagination, if AI mode is on, we need to support pagination for AI queries too.
+    // However, the current simple implementation re-submits string.
+    // Ideally we would state-track parameters. For now, simple re-submit is fine.
+    if (this.isAiMode) {
+      // Limitation: Backend AI parse always resets page to 0 in current simple service.
+      // We'll accept this limitation for the prototype phase.
+      this.onAiSearch();
+    } else {
+      this.onSearch(false);
+    }
   }
 }
