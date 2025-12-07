@@ -63,3 +63,26 @@ Since this project uses self-signed certificates for local development, your bro
 3.  **Enter Criteria**: Enter "John" in First Name AND select "IT" from Business Unit validation.
 4.  **Click Search**: Results should appear.
 5.  **Edit Member**: Click "Edit" on a row, change a value, and Save. Verify the grid updates.
+
+## 🧠 AI Search Capabilities & Phrase Guide
+The application features an intelligent Natural Language generic parser.
+
+### 🏢 By Department (Business Unit)
+* "Show me all **IT** members"
+* "List everyone in **Sales**"
+* "Find employees in **HR**"
+* "Who are the **Admin** staff?"
+
+### 🌍 By Country
+* "Members located in **India**"
+* "Show me people in the **USA**"
+* "List members from **Canada**"
+
+### 🚀 Complex Combinations
+* **Name + Dept**: "Is **John** in **IT**?"
+* **Name + Country**: "Find **Sarah** in **India**"
+* **Dept + Country**: "Show all **Sales** members in **USA**"
+* **Full Query**: "Find **Michael** in **Finance** living in **UK**"
+
+### 💡 Pro Tip
+Capitalization matters for names (e.g., "**J**ohn"), but keywords are case-insensitive.
