@@ -88,12 +88,17 @@ input:checked+.slider:before {
 .ai-input {
     width: 100%;
     padding: 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
     font-size: 1.1rem;
     font-family: inherit;
     resize: vertical;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+    /* Fixes overflow */
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    min-height: 120px;
 }
 
 .ai-input:focus {
