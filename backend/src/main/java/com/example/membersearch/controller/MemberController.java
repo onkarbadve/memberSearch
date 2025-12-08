@@ -29,8 +29,13 @@ public class MemberController {
     }
 
     @PostMapping("/search/ai")
-    public Page<Member> aiSearch(@RequestBody String query) {
+    public Page<Member> aiSearch(@RequestBody String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         SearchRequest request = aiSearchService.parseQuery(query);
+        // Override with requested pagination
+        request.setPage(page);
+        request.setSize(size);
         System.out.println("AI Parsed Query: " + request);
         return memberService.searchMembers(request);
     }

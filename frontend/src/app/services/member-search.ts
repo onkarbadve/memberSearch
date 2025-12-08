@@ -53,7 +53,7 @@ export class MemberSearchService {
     return this.http.put<Member>(`${baseUrl}/${id}`, member);
   }
 
-  aiSearch(query: string): Observable<SearchResponse> {
-    return this.http.post<SearchResponse>(`${this.apiUrl}/ai`, query);
+  aiSearch(query: string, page: number = 0, size: number = 10): Observable<SearchResponse> {
+    return this.http.post<SearchResponse>(`${this.apiUrl}/ai?page=${page}&size=${size}`, query);
   }
 }

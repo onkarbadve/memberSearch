@@ -212,17 +212,18 @@ export class MemberSearchComponent implements OnInit {
     this.executeSearch(this.searchForm.value, resetPage);
   }
 
-  onAiSearch() {
+  onAiSearch(resetPage: boolean = true) {
     if (!this.aiQuery.trim()) return;
 
     this.isLoading = true;
     this.errorMessage = '';
     this.hasSearched = false;
 
-    // Reset standard form to avoid confusion if we switch back
-    this.currentPage = 0;
+    if (resetPage) {
+      this.currentPage = 0;
+    }
 
-    this.memberSearchService.aiSearch(this.aiQuery).subscribe({
+    this.memberSearchService.aiSearch(this.aiQuery, this.currentPage, this.pageSize).subscribe({
       next: (response) => {
         this.handleResponse(response);
       },
@@ -271,7 +272,7 @@ export class MemberSearchComponent implements OnInit {
   onRefresh() {
     // Re-run the last active search type
     if (this.isAiMode) {
-      this.onAiSearch();
+      this.onAiSearch(false);
     } else {
       this.onSearch(false);
     }
@@ -299,9 +300,7 @@ export class MemberSearchComponent implements OnInit {
     // However, the current simple implementation re-submits string.
     // Ideally we would state-track parameters. For now, simple re-submit is fine.
     if (this.isAiMode) {
-      // Limitation: Backend AI parse always resets page to 0 in current simple service.
-      // We'll accept this limitation for the prototype phase.
-      this.onAiSearch();
+      this.onAiSearch(false);
     } else {
       this.onSearch(false);
     }
