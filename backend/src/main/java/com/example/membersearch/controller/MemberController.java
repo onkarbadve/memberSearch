@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @RequestMapping("/api/members")
-@CrossOrigin(origins = "*") // Allow all for debugging
 public class MemberController {
 
     @Autowired
