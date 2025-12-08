@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://membersearch.onrender.com'
+    apiUrl: 'https://membersearch.onrender.com/api/members'
 };
