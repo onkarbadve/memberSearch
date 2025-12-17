@@ -1,8 +1,11 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, ValidatorFn, AbstractControl, ValidationErrors, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, ValidatorFn, AbstractControl, ValidationErrors, FormsModule, Validators } from '@angular/forms';
 import { Member, MemberSearchService, SearchRequest } from '../../services/member-search';
 import { SearchResultsComponent } from '../search-results/search-results';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { ToastService } from '../../services/toast.service';
+import { ValidationErrorsComponent } from '../validation-errors/validation-errors.component';
 
 // Custom Validator: (First OR Last) AND BusinessUnit REQUIRED
 const searchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -19,7 +22,7 @@ const searchValidator: ValidatorFn = (control: AbstractControl): ValidationError
 @Component({
   selector: 'app-member-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SearchResultsComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SearchResultsComponent, LoadingSpinnerComponent, ValidationErrorsComponent],
   template: `
     <div class="search-container">
       <div class="header-row">
@@ -47,17 +50,26 @@ const searchValidator: ValidatorFn = (control: AbstractControl): ValidationError
           <div class="form-grid">
             <div class="form-group">
               <label>First Name</label>
-              <input formControlName="firstName" type="text" placeholder="e.g. John" />
+              <input formControlName="firstName" type="text" placeholder="e.g. John" 
+                     [class.invalid]="searchForm.get('firstName')?.invalid && searchForm.get('firstName')?.touched"
+                     [class.valid]="searchForm.get('firstName')?.valid && searchForm.get('firstName')?.touched" />
+              <app-validation-errors [control]="searchForm.get('firstName')" fieldName="First name"></app-validation-errors>
             </div>
             
             <div class="form-group">
               <label>Middle Name</label>
-              <input formControlName="middleName" type="text" />
+              <input formControlName="middleName" type="text" 
+                     [class.invalid]="searchForm.get('middleName')?.invalid && searchForm.get('middleName')?.touched"
+                     [class.valid]="searchForm.get('middleName')?.valid && searchForm.get('middleName')?.touched" />
+              <app-validation-errors [control]="searchForm.get('middleName')" fieldName="Middle name"></app-validation-errors>
             </div>
 
             <div class="form-group">
               <label>Last Name</label>
-              <input formControlName="lastName" type="text" placeholder="e.g. Doe" />
+              <input formControlName="lastName" type="text" placeholder="e.g. Doe" 
+                     [class.invalid]="searchForm.get('lastName')?.invalid && searchForm.get('lastName')?.touched"
+                     [class.valid]="searchForm.get('lastName')?.valid && searchForm.get('lastName')?.touched" />
+              <app-validation-errors [control]="searchForm.get('lastName')" fieldName="Last name"></app-validation-errors>
             </div>
 
             <!-- Custom Multi-select Dropdown -->
@@ -80,12 +92,18 @@ const searchValidator: ValidatorFn = (control: AbstractControl): ValidationError
 
             <div class="form-group">
               <label>Country</label>
-              <input formControlName="country" type="text" />
+              <input formControlName="country" type="text" 
+                     [class.invalid]="searchForm.get('country')?.invalid && searchForm.get('country')?.touched"
+                     [class.valid]="searchForm.get('country')?.valid && searchForm.get('country')?.touched" />
+              <app-validation-errors [control]="searchForm.get('country')" fieldName="Country"></app-validation-errors>
             </div>
 
             <div class="form-group">
                 <label>Source Member ID</label>
-                <input formControlName="sourceMemberId" type="text" />
+                <input formControlName="sourceMemberId" type="text" 
+                       [class.invalid]="searchForm.get('sourceMemberId')?.invalid && searchForm.get('sourceMemberId')?.touched"
+                       [class.valid]="searchForm.get('sourceMemberId')?.valid && searchForm.get('sourceMemberId')?.touched" />
+                <app-validation-errors [control]="searchForm.get('sourceMemberId')" fieldName="Source Member ID"></app-validation-errors>
               </div>
           </div>
 
@@ -126,6 +144,8 @@ const searchValidator: ValidatorFn = (control: AbstractControl): ValidationError
         (refresh)="onRefresh()"> 
       </app-search-results>
 
+      <app-loading-spinner [isLoading]="isLoading" [message]="loadingMessage"></app-loading-spinner>
+
     </div>
   `,
   styleUrls: ['./member-search.css']
@@ -139,6 +159,7 @@ export class MemberSearchComponent implements OnInit {
   isLoading: boolean = false;
   hasSearched: boolean = false;
   errorMessage: string = '';
+  loadingMessage: string = 'Searching...';
 
   // AI Mode State
   isAiMode = false;
@@ -151,15 +172,30 @@ export class MemberSearchComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private memberSearchService: MemberSearchService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastService: ToastService
   ) {
     this.searchForm = this.fb.group({
-      firstName: [''],
-      middleName: [''],
-      lastName: [''],
+      firstName: ['', [
+        Validators.minLength(2),
+        Validators.maxLength(50),
+        Validators.pattern(/^[a-zA-Z\s'-]+$/)
+      ]],
+      middleName: ['', [
+        Validators.maxLength(50),
+        Validators.pattern(/^[a-zA-Z\s'-]+$/)
+      ]],
+      lastName: ['', [
+        Validators.minLength(2),
+        Validators.maxLength(50),
+        Validators.pattern(/^[a-zA-Z\s'-]+$/)
+      ]],
       businessUnits: [[]], // Array of strings
-      country: [''],
-      sourceMemberId: ['']
+      country: ['', [
+        Validators.maxLength(50),
+        Validators.pattern(/^[a-zA-Z\s]+$/)
+      ]],
+      sourceMemberId: ['', Validators.maxLength(50)]
     }, { validators: searchValidator });
   }
 
@@ -259,13 +295,29 @@ export class MemberSearchComponent implements OnInit {
     this.totalCount = response.totalElements;
     this.isLoading = false;
     this.hasSearched = true;
+
+    // Show success toast
+    const count = response.totalElements;
+    this.toastService.success(`Found ${count} member${count !== 1 ? 's' : ''}`);
+
     this.cdr.detectChanges();
   }
 
   private handleError(err: any) {
     console.error('Search failed', err);
     this.isLoading = false;
-    this.errorMessage = 'Search failed: ' + (err.message || 'Unknown error');
+
+    // Extract error message from backend error response
+    let errorMsg = 'Search failed';
+    if (err.error?.message) {
+      errorMsg = err.error.message;
+    } else if (err.message) {
+      errorMsg = err.message;
+    }
+
+    this.errorMessage = errorMsg;
+    this.toastService.error(errorMsg);
+
     this.cdr.detectChanges();
   }
 
