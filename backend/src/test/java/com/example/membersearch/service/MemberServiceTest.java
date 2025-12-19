@@ -54,7 +54,7 @@ class MemberServiceTest {
         List<Member> members = Arrays.asList(testMember);
         Page<Member> page = new PageImpl<>(members, PageRequest.of(0, 10), 1);
 
-        when(memberRepository.findAll(any(Specification.class), any(PageRequest.class)))
+        when(memberRepository.findAll(nullable(Specification.class), any(PageRequest.class)))
                 .thenReturn(page);
 
         // Act
@@ -64,7 +64,7 @@ class MemberServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals("John", result.getContent().get(0).getFirstName());
-        verify(memberRepository).findAll(any(Specification.class), any(PageRequest.class));
+        verify(memberRepository).findAll(nullable(Specification.class), any(PageRequest.class));
     }
 
     @Test
@@ -78,7 +78,8 @@ class MemberServiceTest {
         List<Member> members = Arrays.asList(testMember);
         Page<Member> page = new PageImpl<>(members, PageRequest.of(0, 10), 1);
 
-        when(memberRepository.findAll(any(Specification.class), any(PageRequest.class)))
+        when(memberRepository.findAll(nullable(Specification.class),
+                any(PageRequest.class)))
                 .thenReturn(page);
 
         // Act
@@ -87,7 +88,7 @@ class MemberServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
-        verify(memberRepository).findAll(any(Specification.class), any(PageRequest.class));
+        verify(memberRepository).findAll(nullable(Specification.class), any(PageRequest.class));
     }
 
     @Test
@@ -138,7 +139,8 @@ class MemberServiceTest {
         List<Member> members = Arrays.asList(testMember);
         Page<Member> page = new PageImpl<>(members, PageRequest.of(1, 5), 10);
 
-        when(memberRepository.findAll(any(Specification.class), any(PageRequest.class)))
+        when(memberRepository.findAll(nullable(Specification.class),
+                any(PageRequest.class)))
                 .thenReturn(page);
 
         // Act
@@ -148,6 +150,6 @@ class MemberServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getNumber());
         assertEquals(5, result.getSize());
-        verify(memberRepository).findAll(any(Specification.class), any(PageRequest.class));
+        verify(memberRepository).findAll(nullable(Specification.class), any(PageRequest.class));
     }
 }
